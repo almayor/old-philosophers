@@ -2,54 +2,52 @@
 
 static void	update_state(t_philo *philo)
 {
-    pthread_mutex_lock(&philo->state);
+    sem_wait(philo->state);
     ++philo->nb_eats;
-    philo->t_last_eat = chrono();
-    philo->is_eating = 0;
-    pthread_mutex_unlock(&philo->state);
+    philo->t_last_eat = timestamp();
+    sem_post(philo->state);
 }
 
 static void	eating(t_philo *philo)
 {
-    pthread_mutex_lock(philo->lfork);
+    sem_wait(philo->globals->waiter);
+    sem_wait(philo->globals->forks);
+    sem_wait(philo->globals->forks);
     aff(philo, PH_TAKEN_FORK);
-    pthread_mutex_lock(philo->rfork);
     aff(philo, PH_TAKEN_FORK);
     aff(philo, PH_EATING);
-    pthread_mutex_lock(&philo->state);
-    philo->is_eating = 1;
-    pthread_mutex_unlock(&philo->state);
-    usleep(philo->globals->t_eat * 1000);
-    pthread_mutex_unlock(philo->lfork);
-    pthread_mutex_unlock(philo->rfork);
+    smart_sleep(philo, philo->globals->t_eat);
+    sem_post(philo->globals->forks);
+    sem_post(philo->globals->forks);
+    sem_post(philo->globals->waiter);
     update_state(philo);
 }
 
 static void sleeping(t_philo *philo)
 {
     aff(philo, PH_SLEEPING);
-    usleep(philo->globals->t_sleep * 1000);
+    smart_sleep(philo, philo->globals->t_sleep);
 }
 
-static int active(t_philo *philo)
+static void thinking(t_philo *philo)
 {
-    int is_active;
-
-    pthread_mutex_lock(&philo->state);
-    is_active = philo->is_active;
-    pthread_mutex_unlock(&philo->state);
-    return is_active;
+    aff(philo, PH_THINKING);
 }
 
 void *philosopher(void *arg)
 {
     t_philo *philo;
+    int     is_active;
 
     philo = (t_philo *)arg;
-    while (active(philo)) {
+    is_active = 1;
+    while (is_active) {
         eating(philo);
         sleeping(philo);
-        aff(philo, PH_THINKING);
+        thinking(philo);
+        sem_wait(philo->globals->state);
+        is_active = philo->globals->is_active;
+        sem_post(philo->globals->state);
     }
     return (NULL);
 }

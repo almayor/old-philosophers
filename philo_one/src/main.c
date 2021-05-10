@@ -82,11 +82,9 @@ int main(int argc, char *argv[])
 	t_code		code;
 
 	philos = NULL;
-	if ((code = init_params(&globals, argc, argv)))
-		return (clean_exit(&globals, philos, code));
-	if ((code = init_philos(&philos, &globals)))
-		return (clean_exit(&globals, philos, code));
-	if ((code = init_threads(&globals, philos)))
+	if ((code = init_params(&globals, argc, argv)) ||
+	    (code = init_philos(&philos, &globals)) ||
+	    (code = init_threads(&globals, philos)))
 		return (clean_exit(&globals, philos, code));
 	monitor(&globals, philos);
 	clean_exit(&globals, philos, err_ok);
