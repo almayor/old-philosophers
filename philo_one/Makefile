@@ -2,11 +2,10 @@ NAME = philo_one
 
 SRC_NAME = \
 clean_exit.c \
-routine.c \
 aff.c \
-chrono.c \
 philosopher.c \
 utils.c \
+monitor.c \
 main.c
 
 ################################################################################
@@ -24,7 +23,7 @@ MKDIR = /bin/mkdir
 ################################################################################
 
 COMPILE = $(CC) -c
-CFLAGS += -Werror -MMD
+CFLAGS += -Werror -Wextra -Wall -MMD
 CFLAGS += $(foreach path, $(PATHI), -I$(path))
 
 LINK = $(CC)

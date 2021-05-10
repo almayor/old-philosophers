@@ -3,20 +3,20 @@
 
 static void		assign_forks(t_philo *philos, const t_globals *globals)
 {
-	int	            i;
+	int i;
 
 	i = -1;
 	while (++i < globals->nb_philo)
 	{
-	    if (philos[i].id % 2)
-	    {
-            philos[i].lfork = &philos[i].fork;
-            philos[i].rfork = &philos[(i + 1) % globals->nb_philo].fork;
+	    if (i == 0)
+        {
+            philos[i].lfork = &globals->forks[0];
+            philos[i].rfork = &globals->forks[globals->nb_philo - 1];
         }
 	    else
         {
-            philos[i].rfork = &philos[i].fork;
-            philos[i].lfork = &philos[(i + 1) % globals->nb_philo].fork;
+            philos[i].lfork = &globals->forks[i - 1];
+	        philos[i].rfork = &globals->forks[i];
         }
 	}
 }
@@ -25,16 +25,17 @@ static t_code	init_philos(t_philo **philos, t_globals *globals)
 {
 	int		i;
 
-	if (!(*philos = ft_calloc(globals->nb_philo, sizeof(t_philo))))
+	if (!(*philos = ft_calloc(globals->nb_philo, sizeof(t_philo))) ||
+	    !(globals->forks = ft_calloc(globals->nb_philo, sizeof(pthread_mutex_t))))
 		return (err_malloc);
 	i = -1;
 	while (++i < globals->nb_philo)
 	{
         (*philos)[i].id = i + 1;
         (*philos)[i].globals = globals;
-        (*philos)[i].t_last_eat = chrono();
+        (*philos)[i].t_last_eat = timestamp();
 		if (pthread_mutex_init(&(*philos)[i].state, NULL) ||
-			pthread_mutex_init(&(*philos)[i].fork, NULL))
+			pthread_mutex_init(&globals->forks[i], NULL))
 			return (err_malloc);
 	}
 	assign_forks(*philos, globals);
@@ -49,12 +50,13 @@ static t_code	init_params(t_globals *globals, int argc, char *argv[])
 		!is_atoi(argv[3]) || !is_atoi(argv[4]) ||
 		(argc == 6 && !is_atoi(argv[5])))
 		return (err_invalid_arg);
+	globals->is_active = 1;
 	globals->nb_philo = ft_atoi(argv[1]);
 	globals->t_die = ft_atoi(argv[2]);
 	globals->t_eat = ft_atoi(argv[3]);
 	globals->t_sleep = ft_atoi(argv[4]);
 	globals->nb_must_eat = argc == 6 ? ft_atoi(argv[5]) : -1;
-	if (pthread_mutex_init(&globals->printer, NULL))
+	if (pthread_mutex_init(&globals->state, NULL))
 		return (err_malloc);
 	return (err_ok);
 }
@@ -66,10 +68,9 @@ static t_code	init_threads(const t_globals *globals, t_philo *philos)
 	i = -1;
 	while (++i < globals->nb_philo)
 	{
-	    philos[i].is_active = 1;
+	    usleep(100);
 		if (pthread_create(&philos[i].thread, NULL, &philosopher, &philos[i]))
 			return (err_new_thread);
-		pthread_detach(philos[i].thread);
 	}
 	return (err_ok);
 }
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
 		return (clean_exit(&globals, philos, code));
 	if ((code = init_threads(&globals, philos)))
 		return (clean_exit(&globals, philos, code));
-	routine(&globals, philos);
+	monitor(&globals, philos);
 	clean_exit(&globals, philos, err_ok);
 	return (0);
 }

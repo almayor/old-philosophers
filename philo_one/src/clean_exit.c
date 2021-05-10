@@ -27,14 +27,27 @@ static void clean_philosophers(t_globals *globals, t_philo *philos)
     {
         pthread_join(philos[i].thread, NULL);
         pthread_mutex_destroy(&philos[i].state);
-        pthread_mutex_destroy(&philos[i].fork);
     }
+    free(philos);
+}
+
+static void clean_forks(t_globals *globals)
+{
+    int i;
+
+    i = -1;
+    while (++i < globals->nb_philo)
+    {
+        pthread_mutex_destroy(&globals->forks[i]);
+    }
+    free(globals->forks);
 }
 
 int	clean_exit(t_globals *globals, t_philo *philos, t_code code)
 {
     clean_philosophers(globals, philos);
+    clean_forks(globals);
     print_message(code);
-    pthread_mutex_destroy(&globals->printer);
+    pthread_mutex_destroy(&globals->state);
     return (code == err_ok ? 0 : 1);
 }
