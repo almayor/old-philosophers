@@ -36,22 +36,6 @@ int ft_atoi(const char *s)
     return (ans > INT_MAX ? -1 : ans);
 }
 
-void    smart_sleep(t_philo *philo, t_mseconds duration)
-{
-    int         is_active;
-    t_mseconds  end;
-
-    is_active = 1;
-    end = timestamp() + duration;
-    while (timestamp() < end && is_active)
-    {
-        usleep(100);
-        sem_wait(philo->globals->state);
-        is_active = philo->globals->is_active;
-        sem_post(philo->globals->state);
-    }
-}
-
 t_mseconds	timestamp(void)
 {
     struct timeval	tv;

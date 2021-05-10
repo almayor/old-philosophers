@@ -10,6 +10,10 @@ static void print_message(t_code code)
         write(2, "Error creating a process\n", 25);
     else if (code == err_new_sem)
         write(2, "Error creating a semaphore\n", 27);
+    else if (code == err_new_thread)
+        write(2, "Error creating a thread\n", 24);
+    else if (code == err_term_proc)
+        write(2, "Child process returned an invalid status\n", 41);
     else if (code == err_wrong_argc)
     {
         write(2, "Usage: ./philo_three number_of_philosophers", 41);
@@ -18,7 +22,7 @@ static void print_message(t_code code)
     }
 }
 
-static void clean_philosophers(t_globals *globals, t_philo *philos)
+static t_code clean_philosophers(t_globals *globals, t_philo *philos)
 {
     t_code  code;
     int     i;
@@ -31,18 +35,22 @@ static void clean_philosophers(t_globals *globals, t_philo *philos)
     while (++i < globals->nb_philo)
     {
         kill(philos[i].pid, SIGTERM);
+        waitpid(philos[i].pid, &status, 0);
         if (philos[i].state)
             sem_close(philos[i].state);
+        if (WEXITSTATUS(status) && WTERMSIG(status) != SIGTERM)
+            code = err_term_proc;
     }
     free(philos);
+    return (code);
 }
 
 int	clean_exit(t_globals *globals, t_philo *philos, t_code code)
 {
-    clean_philosophers(globals, philos);
+    code = clean_philosophers(globals, philos) || code;
     print_message(code);
-    if (globals->procs)
-        sem_close(globals->procs);
+    if (globals->finish)
+        sem_close(globals->finish);
     if (globals->forks)
         sem_close(globals->forks);
     if (globals->waiter)

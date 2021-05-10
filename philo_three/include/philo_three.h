@@ -21,9 +21,10 @@ typedef enum	e_code
     err_wrong_argc,
     err_invalid_arg,
     err_malloc,
-    err_term_proc,
+    err_new_thread,
     err_new_proc,
     err_new_sem,
+    err_term_proc
 }				t_code;
 
 # define PH_THINKING		"is thinking"
@@ -41,11 +42,10 @@ typedef struct	s_globals
     t_mseconds		t_eat;
     t_mseconds		t_sleep;
     t_mseconds		t_die;
-    sem_t           *procs;
+    sem_t           *finish;
     sem_t           *eats;
     sem_t	        *forks;
     sem_t           *waiter;
-    t_philo         *philos;
 }				t_globals;
 
 typedef struct	s_philo
@@ -58,9 +58,10 @@ typedef struct	s_philo
     t_globals       *globals;
 }				t_philo;
 
-void            routine(t_philo *philo);
+_Noreturn void            routine(t_philo *philo);
 
-void            monitor(t_globals *globals, t_philo *philos);
+_Noreturn void            *introspect(void *arg);
+t_code          monitor(t_globals *globals);
 t_mseconds      timestamp(void);
 void            aff(t_philo *philo, const char *mes);
 int             clean_exit(t_globals *globals, t_philo *philos, t_code code);
@@ -69,6 +70,5 @@ t_code          init_sems(t_globals *globals, t_philo *philos);
 void            *ft_calloc(size_t count, size_t size);
 int             ft_atoi(const char *s);
 int             is_atoi(const char *s);
-void            smart_sleep(t_philo *philo, t_mseconds duration);
 
 #endif

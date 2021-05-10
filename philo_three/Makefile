@@ -5,6 +5,7 @@ semaphore.c \
 clean_exit.c \
 aff.c \
 routine.c \
+introspect.c \
 utils.c \
 monitor.c \
 main.c

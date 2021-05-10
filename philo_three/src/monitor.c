@@ -1,58 +1,29 @@
 #include "philo_three.h"
 
-static int	monitor_count(t_globals *globals, t_philo *philos)
+static void	*monitor_counts(void *arg)
 {
-    int		i;
-    int     nb_eats;
+   t_globals   *globals;
+   int		    i;
 
-    i = -1;
-    while (++i < globals->nb_philo)
-    {
-        sem_wait(philos[i].state);
-        nb_eats = philos[i].nb_eats;
-        sem_post(philos[i].state);
-        if (globals->nb_must_eat < 0 || nb_eats < globals->nb_must_eat)
-            return (0);
-    }
-    sem_wait(globals->state);
-    globals->is_active = 0;
-    sem_post(globals->state);
-    return (1);
+   globals = (t_globals *)arg;
+   sem_wait(globals->finish);
+   i = -1;
+   while (++i < globals->nb_philo)
+       sem_wait(globals->eats);
+   sem_post(globals->finish);
+   return (NULL);
 }
 
-static int  check_dead(t_globals *globals, t_philo *philos)
+t_code monitor(t_globals *globals)
 {
-    int         i;
-    t_mseconds  last_eat;
+    pthread_t   thread;
 
-    i = -1;
-    while (++i < globals->nb_philo)
-    {
-        sem_wait(philos[i].state);
-        last_eat = philos[i].t_last_eat;
-        sem_post(philos[i].state);
-        if (timestamp() - last_eat > globals->t_die)
-        {
-            sem_wait(globals->state);
-            globals->is_active = 0;
-            printf("%ju %d %s\n", (uintmax_t)timestamp(), philos[i].id, PH_DIED);
-            sem_post(globals->state);
-            return (1);
-        }
-    }
-    return (0);
-}
-
-void *monitor(void *arg)
-{
-    t_philo *philo;
-
-    philo = (t_philo *)arg);
-    while (1)
-    {
-        usleep(50);
-        if (check_count(philo) || check_dead(philo))
-            break ;
-    }
+    usleep(1000);
+    if (pthread_create(&thread, NULL, &monitor_counts, globals))
+       return (err_new_thread);
+    usleep(1000);
+    pthread_detach(thread);
+    sem_wait(globals->finish);
+    return (err_ok);
 }
 

@@ -44,11 +44,9 @@ static t_code	init_procs(const t_globals *globals, t_philo *philos)
 		if (philos[i].pid < 0)
 			return (err_new_proc);
 		if (philos[i].pid == 0)
-        {
 		    routine(&philos[i]);
-		    exit(0);
-        }
 	}
+    usleep(100);
 	return (err_ok);
 }
 
@@ -63,9 +61,8 @@ int main(int argc, char *argv[])
 	if ((code = init_params(&globals, argc, argv)) ||
 	    (code = init_philos(&philos, &globals)) ||
 	    (code = init_sems(&globals, philos)) ||
-	    (code = init_procs(&globals, philos)))
-		return (clean_exit(&globals, philos, code));
-	sem_wait(globals.procs);
-	clean_exit(&globals, philos, err_ok);
-	return (0);
+	    (code = init_procs(&globals, philos)) ||
+	    (code = monitor(&globals)))
+		exit(clean_exit(&globals, philos, code));
+	exit(clean_exit(&globals, philos, err_ok));
 }

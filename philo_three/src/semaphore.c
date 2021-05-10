@@ -35,11 +35,11 @@ static const char *get_name(void)
 
 static t_code  init_sems_global(t_globals *globals)
 {
-    globals->procs = create_sem("sem_procs", globals->nb_philo);
+    globals->finish = create_sem("sem_finish", globals->nb_philo + 1);
     globals->eats = create_sem("sem_eats", globals->nb_philo);
     globals->forks = create_sem("sem_forks", globals->nb_philo);
     globals->waiter = create_sem("sem_waiter", globals->nb_philo - 1);
-    if (globals->procs == SEM_FAILED ||
+    if (globals->finish == SEM_FAILED ||
         globals->forks == SEM_FAILED ||
         globals->waiter == SEM_FAILED)
         return (err_new_sem);
