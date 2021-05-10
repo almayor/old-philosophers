@@ -1,0 +1,4 @@
+CMakeLists
+obj
+philo_one/philo_one
+cmake-build-debug
