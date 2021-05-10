@@ -1,4 +1,5 @@
-CMakeLists
+CMakeLists.txt
 obj
 philo_one/philo_one
 cmake-build-debug
+.idea
