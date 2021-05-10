@@ -3,7 +3,7 @@ NAME = philo_one
 SRC_NAME = \
 clean_exit.c \
 aff.c \
-philosopher.c \
+routine.c \
 utils.c \
 monitor.c \
 main.c

@@ -1,32 +1,10 @@
-#include "philo_one.h"
-
-
-static void		assign_forks(t_philo *philos, const t_globals *globals)
-{
-	int i;
-
-	i = -1;
-	while (++i < globals->nb_philo)
-	{
-	    if (i == 0)
-        {
-            philos[i].lfork = &globals->forks[0];
-            philos[i].rfork = &globals->forks[globals->nb_philo - 1];
-        }
-	    else
-        {
-            philos[i].lfork = &globals->forks[i - 1];
-	        philos[i].rfork = &globals->forks[i];
-        }
-	}
-}
+#include "philo_three.h"
 
 static t_code	init_philos(t_philo **philos, t_globals *globals)
 {
-	int		i;
+	int		    i;
 
-	if (!(*philos = ft_calloc(globals->nb_philo, sizeof(t_philo))) ||
-	    !(globals->forks = ft_calloc(globals->nb_philo, sizeof(pthread_mutex_t))))
+	if (!(*philos = ft_calloc(globals->nb_philo, sizeof(t_philo))))
 		return (err_malloc);
 	i = -1;
 	while (++i < globals->nb_philo)
@@ -34,11 +12,7 @@ static t_code	init_philos(t_philo **philos, t_globals *globals)
         (*philos)[i].id = i + 1;
         (*philos)[i].globals = globals;
         (*philos)[i].t_last_eat = timestamp();
-		if (pthread_mutex_init(&(*philos)[i].state, NULL) ||
-			pthread_mutex_init(&globals->forks[i], NULL))
-			return (err_malloc);
 	}
-	assign_forks(*philos, globals);
 	return (err_ok);
 }
 
@@ -50,18 +24,15 @@ static t_code	init_params(t_globals *globals, int argc, char *argv[])
 		!is_atoi(argv[3]) || !is_atoi(argv[4]) ||
 		(argc == 6 && !is_atoi(argv[5])))
 		return (err_invalid_arg);
-	globals->is_active = 1;
 	globals->nb_philo = ft_atoi(argv[1]);
 	globals->t_die = ft_atoi(argv[2]);
 	globals->t_eat = ft_atoi(argv[3]);
 	globals->t_sleep = ft_atoi(argv[4]);
 	globals->nb_must_eat = argc == 6 ? ft_atoi(argv[5]) : -1;
-	if (pthread_mutex_init(&globals->state, NULL))
-		return (err_malloc);
 	return (err_ok);
 }
 
-static t_code	init_threads(const t_globals *globals, t_philo *philos)
+static t_code	init_procs(const t_globals *globals, t_philo *philos)
 {
 	int			i;
 
@@ -69,8 +40,14 @@ static t_code	init_threads(const t_globals *globals, t_philo *philos)
 	while (++i < globals->nb_philo)
 	{
 	    usleep(100);
-		if (pthread_create(&philos[i].thread, NULL, &routine, &philos[i]))
-			return (err_new_thread);
+        philos[i].pid = fork();
+		if (philos[i].pid < 0)
+			return (err_new_proc);
+		if (philos[i].pid == 0)
+        {
+		    routine(&philos[i]);
+		    exit(0);
+        }
 	}
 	return (err_ok);
 }
@@ -85,9 +62,10 @@ int main(int argc, char *argv[])
 	philos = NULL;
 	if ((code = init_params(&globals, argc, argv)) ||
 	    (code = init_philos(&philos, &globals)) ||
-	    (code = init_threads(&globals, philos)))
+	    (code = init_sems(&globals, philos)) ||
+	    (code = init_procs(&globals, philos)))
 		return (clean_exit(&globals, philos, code));
-	monitor(&globals, philos);
+	sem_wait(globals.procs);
 	clean_exit(&globals, philos, err_ok);
 	return (0);
 }

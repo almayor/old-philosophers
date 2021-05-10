@@ -15,10 +15,10 @@ static void	eating(t_philo *philo)
     pthread_mutex_lock(philo->rfork);
     aff(philo, PH_TAKEN_FORK);
     aff(philo, PH_EATING);
+    update_state(philo);
     smart_sleep(philo, philo->globals->t_eat);
     pthread_mutex_unlock(philo->lfork);
     pthread_mutex_unlock(philo->rfork);
-    update_state(philo);
 }
 
 static void sleeping(t_philo *philo)
@@ -32,7 +32,7 @@ static void thinking(t_philo *philo)
     aff(philo, PH_THINKING);
 }
 
-void *philosopher(void *arg)
+void *routine(void *arg)
 {
     t_philo *philo;
     int     is_active;

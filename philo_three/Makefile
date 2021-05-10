@@ -1,4 +1,4 @@
-NAME = philo_two
+NAME = philo_three
 
 SRC_NAME = \
 semaphore.c \

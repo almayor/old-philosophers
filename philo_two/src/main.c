@@ -41,7 +41,7 @@ static t_code	init_threads(const t_globals *globals, t_philo *philos)
 	while (++i < globals->nb_philo)
 	{
 	    usleep(100);
-		if (pthread_create(&philos[i].thread, NULL, &philosopher, &philos[i]))
+		if (pthread_create(&philos[i].thread, NULL, &routine, &philos[i]))
 			return (err_new_thread);
 	}
 	return (err_ok);
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 	t_philo		*philos;
 	t_code		code;
 
+	memset(&globals, 0, sizeof(t_globals));
 	philos = NULL;
 	if ((code = init_params(&globals, argc, argv)) ||
 	    (code = init_philos(&philos, &globals)) ||

@@ -1,10 +1,12 @@
-#ifndef PHILO_TWO_H
-# define PHILO_TWO_H
+#ifndef PHILO_THREE_H
+# define PHILO_THREE_H
 
+# include <sys/wait.h>
 # include <unistd.h>
 # include <sys/time.h>
 # include <pthread.h>
 # include <semaphore.h>
+# include <signal.h>
 # include <stdio.h>
 # include <stdint.h>
 # include <stdlib.h>
@@ -19,8 +21,9 @@ typedef enum	e_code
     err_wrong_argc,
     err_invalid_arg,
     err_malloc,
-    err_new_thread,
-    err_new_sem
+    err_term_proc,
+    err_new_proc,
+    err_new_sem,
 }				t_code;
 
 # define PH_THINKING		"is thinking"
@@ -29,17 +32,20 @@ typedef enum	e_code
 # define PH_TAKEN_FORK	    "has taken a fork"
 # define PH_DIED			"died"
 
+typedef struct	s_philo t_philo;
+
 typedef struct	s_globals
 {
     int				nb_philo;
     int				nb_must_eat;
-    int             is_active;
     t_mseconds		t_eat;
     t_mseconds		t_sleep;
     t_mseconds		t_die;
-    sem_t	        *state;
+    sem_t           *procs;
+    sem_t           *eats;
     sem_t	        *forks;
     sem_t           *waiter;
+    t_philo         *philos;
 }				t_globals;
 
 typedef struct	s_philo
@@ -47,12 +53,12 @@ typedef struct	s_philo
     int				id;
     int             nb_eats;
     t_mseconds      t_last_eat;
-    pthread_t	    thread;
+    pid_t	        pid;
     sem_t	        *state;
     t_globals       *globals;
 }				t_philo;
 
-void            *routine(void *philo);
+void            routine(t_philo *philo);
 
 void            monitor(t_globals *globals, t_philo *philos);
 t_mseconds      timestamp(void);

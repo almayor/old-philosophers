@@ -51,7 +51,7 @@ typedef struct	s_philo
     t_globals       *globals;
 }				t_philo;
 
-void            *philosopher(void *philo);
+void            *routine(void *philo);
 
 void            monitor(t_globals *globals, t_philo *philos);
 t_mseconds      timestamp(void);

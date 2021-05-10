@@ -1,4 +1,4 @@
-#include "philo_two.h"
+#include "philo_three.h"
 
 static void	update_state(t_philo *philo)
 {
@@ -34,22 +34,14 @@ static void thinking(t_philo *philo)
     aff(philo, PH_THINKING);
 }
 
-void *philosopher(void *arg)
+void routine(t_philo *philo)
 {
-    t_philo *philo;
-    int     is_active;
 
-    philo = (t_philo *)arg;
-    is_active = 1;
-    while (is_active) {
+    while (1) {
         eating(philo);
         sleeping(philo);
         thinking(philo);
-        sem_wait(philo->globals->state);
-        is_active = philo->globals->is_active;
-        sem_post(philo->globals->state);
     }
-    return (NULL);
 }
 
 
