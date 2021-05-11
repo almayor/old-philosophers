@@ -35,8 +35,8 @@ static const char *get_name(void)
 
 static t_code  init_sems_global(t_globals *globals)
 {
-    globals->finish = create_sem("sem_finish", globals->nb_philo + 1);
-    globals->eats = create_sem("sem_eats", globals->nb_philo);
+    globals->finish = create_sem("sem_finish", 0);
+    globals->eats = create_sem("sem_eats", 0);
     globals->forks = create_sem("sem_forks", globals->nb_philo);
     globals->waiter = create_sem("sem_waiter", globals->nb_philo - 1);
     if (globals->finish == SEM_FAILED ||

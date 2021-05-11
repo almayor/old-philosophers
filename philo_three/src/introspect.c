@@ -38,13 +38,11 @@ _Noreturn void    *introspect(void *arg)
     t_philo *philo;
 
     philo = (t_philo *)arg;
-    sem_wait(philo->globals->finish);
-    sem_wait(philo->globals->eats);
     while (1)
     {
-        usleep(50);
         check_eats(philo);
         check_dead(philo);
+        usleep(50);
     }
 }
 
