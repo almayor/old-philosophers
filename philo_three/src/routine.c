@@ -38,6 +38,7 @@ _Noreturn void	routine(t_philo *philo)
 {
 	pthread_t	thread;
 
+	philo->t_last_eat = timestamp();
 	if (pthread_create(&thread, NULL, &introspect, philo))
 		exit(1);
 	pthread_detach(thread);

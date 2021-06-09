@@ -12,7 +12,6 @@ static t_code	init_philos(t_philo **philos, t_globals *globals)
 	{
 		(*philos)[i].id = i + 1;
 		(*philos)[i].globals = globals;
-		(*philos)[i].t_last_eat = timestamp();
 	}
 	return (err_ok);
 }
