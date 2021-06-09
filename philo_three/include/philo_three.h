@@ -39,6 +39,7 @@ typedef struct s_globals
 {
 	int				nb_philo;
 	int				nb_must_eat;
+	t_mseconds		t_start;
 	t_mseconds		t_eat;
 	t_mseconds		t_sleep;
 	t_mseconds		t_die;

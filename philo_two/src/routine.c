@@ -12,8 +12,8 @@ static void	eating(t_philo *philo)
 {
 	sem_wait(philo->globals->waiter);
 	sem_wait(philo->globals->forks);
-	sem_wait(philo->globals->forks);
 	aff(philo, PH_TAKEN_FORK);
+	sem_wait(philo->globals->forks);
 	aff(philo, PH_TAKEN_FORK);
 	aff(philo, PH_EATING);
 	update_state(philo);

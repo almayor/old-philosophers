@@ -38,7 +38,9 @@ void	*routine(void *arg)
 	int		is_active;
 
 	philo = (t_philo *)arg;
-	is_active = 1;
+	is_active = philo->globals->nb_philo > 1;
+	if (philo->globals->nb_philo == 1)
+		aff(philo, PH_TAKEN_FORK);
 	while (is_active)
 	{
 		eating(philo);

@@ -26,7 +26,9 @@ static void	check_dead(t_philo *philo)
 	last_eat = philo->t_last_eat;
 	if (timestamp() - last_eat > philo->globals->t_die)
 	{
-		printf("%ju %d %s\n", (uintmax_t)timestamp(), philo->id, PH_DIED);
+		printf("%013ju %d %s\n",
+			(uintmax_t)(timestamp() - philo->globals->t_start),
+			philo->id, PH_DIED);
 		sem_post(philo->globals->finish);
 		exit(0);
 	}

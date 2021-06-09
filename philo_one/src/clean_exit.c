@@ -45,8 +45,8 @@ static void	clean_forks(t_globals *globals)
 
 int	clean_exit(t_globals *globals, t_philo *philos, t_code code)
 {
-	clean_philosophers(globals, philos);
 	clean_forks(globals);
+	clean_philosophers(globals, philos);
 	print_message(code);
 	pthread_mutex_destroy(&globals->state);
 	return (code != err_ok);

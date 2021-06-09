@@ -27,6 +27,8 @@ static void	clean_philosophers(t_globals *globals, t_philo *philos)
 	i = -1;
 	while (++i < globals->nb_philo)
 	{
+		sem_post(globals->forks);
+		sem_post(globals->waiter);
 		pthread_join(philos[i].thread, NULL);
 		if (philos[i].state)
 			sem_close(philos[i].state);

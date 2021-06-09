@@ -23,13 +23,14 @@ static t_code	init_params(t_globals *globals, int argc, char *argv[])
 		return (err_wrong_argc);
 	if (!is_atoi(argv[1]) || !is_atoi(argv[2])
 		|| !is_atoi(argv[3]) || !is_atoi(argv[4])
-		|| (argc == 6 && !is_atoi(argv[5])))
+		|| (argc == 6 && is_atoi(argv[5]) < 0))
 		return (err_invalid_arg);
 	globals->is_active = 1;
 	globals->nb_philo = ft_atoi(argv[1]);
 	globals->t_die = ft_atoi(argv[2]);
 	globals->t_eat = ft_atoi(argv[3]);
 	globals->t_sleep = ft_atoi(argv[4]);
+	globals->t_start = timestamp();
 	if (argc == 6)
 		globals->nb_must_eat = ft_atoi(argv[5]);
 	else

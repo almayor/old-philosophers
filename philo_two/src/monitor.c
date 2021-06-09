@@ -35,8 +35,10 @@ static int	check_dead(t_globals *globals, t_philo *philos)
 		{
 			sem_wait(globals->state);
 			globals->is_active = 0;
-			printf("%ju %d %s\n", (uintmax_t)timestamp(), philos[i].id, PH_DIED);
 			sem_post(globals->state);
+			printf("%013ju %d %s\n",
+				(uintmax_t)(timestamp() - globals->t_start),
+				philos[i].id, PH_DIED);
 			return (1);
 		}
 	}

@@ -37,7 +37,10 @@ static t_code	init_sems_global(t_globals *globals)
 	globals->finish = create_sem("sem_finish", 0);
 	globals->eats = create_sem("sem_eats", 0);
 	globals->forks = create_sem("sem_forks", globals->nb_philo);
-	globals->waiter = create_sem("sem_waiter", globals->nb_philo - 1);
+	if (globals->nb_philo > 1)
+		globals->waiter = create_sem("sem_waiter", globals->nb_philo - 1);
+	else
+		globals->waiter = create_sem("sem_waiter", globals->nb_philo);
 	if (globals->finish == SEM_FAILED
 		|| globals->forks == SEM_FAILED
 		|| globals->waiter == SEM_FAILED)
